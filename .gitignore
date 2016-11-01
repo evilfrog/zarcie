@@ -3,3 +3,4 @@ letsencrypt.cache
 main
 pkg/
 src/
+node_modules/
