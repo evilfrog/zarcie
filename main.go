@@ -1,18 +1,38 @@
 package main
 
-import "github.com/kataras/iris"
+import (
+    "github.com/julienschmidt/httprouter"
+    "net/http"
+    "log"
+    "html/template"
+)
 
-func main() {
-    //Static files
-    iris.Static("/css", "./public/css", 1)
-    iris.Static("/js", "./public/js", 1)
-
-    iris.Get("/", index)("home")
-    // iris.Listen(":8080")
-    iris.ListenLETSENCRYPT(":443")
-    // iris.ListenLETSENCRYPT("zarcie.lock:443")
+func handle(e error) {
+    if (nil != e) {
+        log.Fatal(e)
+    }
 }
 
-func index(ctx *iris.Context){
-   ctx.Render("index.html", struct { Name string }{ Name: "iris" })
+func render(w http.ResponseWriter, t string, params interface{}) {
+    tpl, err := template.ParseFiles("./templates/" + t)
+    handle(err)
+
+    err = tpl.Execute(w, params);
+    handle(err)
+}
+
+func main() {
+    router := httprouter.New()
+
+    //Static files
+    router.ServeFiles("/css/*filepath", http.Dir("./public/css"))
+    router.ServeFiles("/js/*filepath", http.Dir("./public/js"))
+
+    router.GET("/", index)
+    log.Print("Zarcie: up!")
+    log.Fatal(http.ListenAndServe(":8080", router))
+}
+
+func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+    render(w, "index.html", struct { Name string }{ Name: "iris" })
 }

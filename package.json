@@ -2,9 +2,11 @@
   "name": "my-project",
   "version": "1.0.0",
   "scripts": {
-      "build": "babel assets -d public"
+    "build": "babel assets -d public"
   },
   "devDependencies": {
-    "babel-cli": "^6.0.0"
+    "babel-cli": "^6.18.0",
+    "babel-preset-latest": "^6.16.0",
+    "babel-preset-react": "^6.16.0"
   }
 }
