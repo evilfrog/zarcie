@@ -5,6 +5,7 @@ import (
     "net/http"
     "log"
     "html/template"
+    cnt "zarcie/controllers"
 )
 
 func handle(e error) {
@@ -29,6 +30,7 @@ func main() {
     router.ServeFiles("/js/*filepath", http.Dir("./public/js"))
 
     router.GET("/", index)
+    router.GET("/days.json", cnt.Days)
     log.Print("Zarcie: up!")
     log.Fatal(http.ListenAndServe(":8080", router))
 }

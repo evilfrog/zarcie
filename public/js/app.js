@@ -160,8 +160,45 @@ var Sidebar = function (_React$Component4) {
         var _this5 = _possibleConstructorReturn(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).call(this, props));
 
         _this5.state = {
-            menus: [[{ name: "Overview", active: true }, { name: "Reports" }, { name: "Analytics" }, { name: "Export" }], [{ name: "Nav item" }, { name: "Nav item again" }, { name: "One more nav" }, { name: "Another nav item" }, { name: "More navigation" }], [{ name: "Nav item again" }, { name: "One more nav" }, { name: "Another nav item" }],, [{ name: "Lorem 1" }, { name: "Lorem 2" }, { name: "Lorem 3" }, { name: "Lorem 4" }]]
+            menus: []
         };
+
+        var sidebar = _this5;
+        $.ajax({
+            url: "/days.json",
+            success: function success(data) {
+                sidebar.setState({ menus: data.body });
+            },
+            dataType: "json"
+        });
+        // this.state = {
+        //     menus: [
+        //         [
+        //             {name: "Overview", active: true},
+        //             {name: "Reports"},
+        //             {name: "Analytics"},
+        //             {name: "Export"},
+        //         ],
+        //         [
+        //             {name: "Nav item"},
+        //             {name: "Nav item again"},
+        //             {name: "One more nav"},
+        //             {name: "Another nav item"},
+        //             {name: "More navigation"},
+        //         ],
+        //         [
+        //             {name: "Nav item again"},
+        //             {name: "One more nav"},
+        //             {name: "Another nav item"},
+        //         ],,
+        //         [
+        //             {name: "Lorem 1"},
+        //             {name: "Lorem 2"},
+        //             {name: "Lorem 3"},
+        //             {name: "Lorem 4"},
+        //         ],
+        //     ]
+        // };
         _this5.click = _this5.click.bind(_this5);
         return _this5;
     }

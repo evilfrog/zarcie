@@ -62,33 +62,18 @@ class Sidebar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            menus: [
-                [
-                    {name: "Overview", active: true},
-                    {name: "Reports"},
-                    {name: "Analytics"},
-                    {name: "Export"},
-                ],
-                [
-                    {name: "Nav item"},
-                    {name: "Nav item again"},
-                    {name: "One more nav"},
-                    {name: "Another nav item"},
-                    {name: "More navigation"},
-                ],
-                [
-                    {name: "Nav item again"},
-                    {name: "One more nav"},
-                    {name: "Another nav item"},
-                ],,
-                [
-                    {name: "Lorem 1"},
-                    {name: "Lorem 2"},
-                    {name: "Lorem 3"},
-                    {name: "Lorem 4"},
-                ],
-            ]
-        };
+            menus: []
+        }
+
+        var sidebar = this;
+        $.ajax({
+            url: "/days.json",
+            success: function(data) {
+                sidebar.setState({menus: data.body})
+            },
+            dataType: "json"
+        });
+
         this.click = this.click.bind(this);
     }
 
