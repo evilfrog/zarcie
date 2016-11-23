@@ -31,6 +31,7 @@ func main() {
 
     router.GET("/", index)
     router.GET("/days.json", cnt.Days)
+    router.GET("/order/:date", cnt.OrderDetails)
     log.Print("Zarcie: up!")
     log.Fatal(http.ListenAndServe(":8080", router))
 }

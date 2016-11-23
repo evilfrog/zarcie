@@ -7,7 +7,13 @@ import (
     "sort"
     "log"
     "os"
+    csv "zarcie/csv"
 )
+
+type Order struct {
+    What string `json:"what"`
+    Who string `json:"who"`
+}
 
 func handle(e error) {
     if (nil != e) {
@@ -16,7 +22,7 @@ func handle(e error) {
 }
 
 func create(name string) {
-    f, err := os.Create("./data/lists/" + name + ".csv")
+    f, err := os.Create("./data/orders/" + name + ".csv")
     handle(err)
     defer f.Close()
 }
@@ -27,7 +33,7 @@ func GetLists() []string {
     today := time.Now().Format("2006-01-02")
     todayPresent := false
 
-    files, _ := ioutil.ReadDir("./data/lists/")
+    files, _ := ioutil.ReadDir("./data/orders/")
     for _, f := range files {
         if (false == f.IsDir() && strings.HasSuffix(f.Name(), ".csv")) {
             name := strings.TrimSuffix(f.Name(), ".csv")
@@ -44,4 +50,17 @@ func GetLists() []string {
     sort.Sort(sort.Reverse(sort.StringSlice(lists)))
 
     return lists
+}
+
+func GetByDate(date string) []Order {
+    date = strings.TrimSuffix(date, ".json")
+    data, err := csv.GetAll("./data/orders/" + date + ".csv")
+    handle(err)
+
+    var orders []Order
+    for _, order := range data {
+        orders = append(orders, Order{order[0], order[1]})
+    }
+
+    return orders
 }

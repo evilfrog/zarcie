@@ -5,7 +5,7 @@ import (
     "net/http"
     "log"
     resp "zarcie/api"
-    lists "zarcie/models/lists"
+    orders "zarcie/models/orders"
 )
 
 func handle(e error) {
@@ -22,12 +22,17 @@ func Days(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
     var menus [][]MenuItem
     var firstMenu []MenuItem
 
-    lists := lists.GetLists()
+    lists := orders.GetLists()
     for _, item := range lists {
         firstMenu = append(firstMenu, MenuItem{item})
     }
     menus = append(menus, firstMenu)
 
     resp.Envelope(w, 200, menus, "List of days.")
+	return
+}
+
+func OrderDetails(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+    resp.Envelope(w, 200, orders.GetByDate(ps.ByName("date")), "Order details.")
 	return
 }

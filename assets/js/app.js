@@ -1,3 +1,56 @@
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import ReactRedux from 'react-redux'
+import { createStore } from 'Redux'
+
+//Predefined action types
+const types = {
+    INIT_SIDEBAR: 'INIT_SIDEBAR',
+    ACTIVATE_LIST: 'ACTIVATE_LIST'
+}
+
+//Action creators - a.k.a. "logic"
+function activateList(menu, item) {
+    return {type: types.ACTIVATE_LIST, menu, item};
+}
+function initSidebar(menus) {
+    return {type: types.INIT_SIDEBAR, menus}
+}
+
+//XXX: Default state???
+const SuperState = {
+    activeSidebar: {
+        menu: 0,
+        item: 0
+    },
+    menus: []
+};
+
+//Reducer(-s?)
+var reducer = function(state = SuperState, action) {
+    switch (action.type) {
+        case types.ACTIVATE_LIST:
+            return Object.assign({}, state, {
+                activeSidebar: {
+                    menu: action.menu,
+                    item: action.item
+                }
+            })
+            break;
+        case types.INIT_SIDEBAR:
+            return Object.assign({}, state, {
+                menus: action.menus
+            })
+            break;
+        default:
+            return state
+            break;
+    }
+};
+
+//Bind things together
+var store = createStore(reducer, SuperState);
+
 class Menu extends React.Component {
     render() {
         return (
@@ -27,7 +80,8 @@ class SidebarNavEl extends React.Component {
     }
 
     handleClick() {
-        this.props.click(this.props.menu, this.props.item);
+        store.dispatch(activateList(this.props.menu, this.props.item));
+        // this.props.click(this.props.menu, this.props.item);
     }
 
     render() {
@@ -44,13 +98,18 @@ class SidebarNavEl extends React.Component {
 }
 
 class SidebarNav extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = store.getState()
+    }
+
     render() {
         return (
             <ul className="nav nav-sidebar">
                 {
-                    this.props.items.map((item, index) => (item.active)
-                        ? <SidebarNavEl click={this.props.click} menu={this.props.menu} item={index} name={item.name} active="true" />
-                        : <SidebarNavEl click={this.props.click} menu={this.props.menu} item={index} name={item.name} />
+                    this.props.items.map((item, index) => (this.state.activeSidebar.menu == this.props.menu && this.state.activeSidebar.item == index)
+                        ? <SidebarNavEl key={ index } click={this.props.click} menu={this.props.menu} item={index} name={item.name} active="true" />
+                        : <SidebarNavEl key={ index } click={this.props.click} menu={this.props.menu} item={index} name={item.name} />
                     )
                 }
             </ul>
@@ -61,42 +120,88 @@ class SidebarNav extends React.Component {
 class Sidebar extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            menus: []
-        }
-
-        var sidebar = this;
-        $.ajax({
-            url: "/days.json",
-            success: function(data) {
-                sidebar.setState({menus: data.body})
-            },
-            dataType: "json"
-        });
-
+        this.state = store.getState()
         this.click = this.click.bind(this);
     }
 
-    click(menuIndex, itemIndex) {
-        var state = this.state;
-        state.menus.map((items, menuCandidate) => {
-            items.map((item, itemCandidate) => {
-                item.active = false;
-                if (menuIndex == menuCandidate && itemIndex == itemCandidate) {
-                    item.active = true;
-                }
+    componentDidMount() {
+        if (0 == this.state.menus.length) {
+            var sidebar = this;
+            $.ajax({
+                url: "/days.json",
+                success: function(data) {
+                    sidebar.setState(store.dispatch(initSidebar(data.body)))
+                },
+                dataType: "json"
             });
-        });
+        }
+    }
 
-        this.setState(state);
+    click(menuIndex, itemIndex) {
+        // var state = this.state;
+        // state.menus.map((items, menuCandidate) => {
+        //     items.map((item, itemCandidate) => {
+        //         item.active = false;
+        //         if (menuIndex == menuCandidate && itemIndex == itemCandidate) {
+        //             item.active = true;
+        //         }
+        //     });
+        // });
+        //
+        // this.setState(state);
     }
 
     render() {
         return (
-            <div className="col-sm-3 col-md-2 sidebar" onClick={this.handleClick}>
+            <div className="col-sm-3 col-md-2 sidebar">
                 {
-                    this.state.menus.map((items, menu) => <SidebarNav click={this.click} menu={menu} items={items} />)
+                    this.state.menus.map((items, menu) => <SidebarNav key={ menu } click={this.click} menu={menu} items={items} />)
                 }
+            </div>
+        );
+    }
+}
+
+class OrdersList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            orders: []
+        }
+        var component = this;
+        $.ajax({
+            url: "/order/" + props.list,
+            success: function(data) {
+                component.setState({orders: data.body})
+            },
+            dataType: "json"
+        });
+    }
+
+    render() {
+        return (
+            <div>
+                <h2>{this.props.list}</h2>
+                <div className="table-responsive">
+                    <table className="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Co</th>
+                                <th>Kto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {
+                            this.state.orders.map((order, index) =>
+                                <tr key={ index }>
+                                    <td>{ order.what }</td>
+                                    <td>{ order.who }</td>
+                                </tr>
+                            )
+                        }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         );
     }
@@ -134,134 +239,7 @@ class Main extends React.Component {
                     </div>
                 </div>
 
-                <h2>Section title</h2>
-                <div className="table-responsive">
-                    <table className="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Header</th>
-                                <th>Header</th>
-                                <th>Header</th>
-                                <th>Header</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1,001</td>
-                                <td>Lorem</td>
-                                <td>ipsum</td>
-                                <td>dolor</td>
-                                <td>sit</td>
-                            </tr>
-                            <tr>
-                                <td>1,002</td>
-                                <td>amet</td>
-                                <td>consectetur</td>
-                                <td>adipiscing</td>
-                                <td>elit</td>
-                            </tr>
-                            <tr>
-                                <td>1,003</td>
-                                <td>Integer</td>
-                                <td>nec</td>
-                                <td>odio</td>
-                                <td>Praesent</td>
-                            </tr>
-                            <tr>
-                                <td>1,003</td>
-                                <td>libero</td>
-                                <td>Sed</td>
-                                <td>cursus</td>
-                                <td>ante</td>
-                            </tr>
-                            <tr>
-                                <td>1,004</td>
-                                <td>dapibus</td>
-                                <td>diam</td>
-                                <td>Sed</td>
-                                <td>nisi</td>
-                            </tr>
-                            <tr>
-                                <td>1,005</td>
-                                <td>Nulla</td>
-                                <td>quis</td>
-                                <td>sem</td>
-                                <td>at</td>
-                            </tr>
-                            <tr>
-                                <td>1,006</td>
-                                <td>nibh</td>
-                                <td>elementum</td>
-                                <td>imperdiet</td>
-                                <td>Duis</td>
-                            </tr>
-                            <tr>
-                                <td>1,007</td>
-                                <td>sagittis</td>
-                                <td>ipsum</td>
-                                <td>Praesent</td>
-                                <td>mauris</td>
-                            </tr>
-                            <tr>
-                                <td>1,008</td>
-                                <td>Fusce</td>
-                                <td>nec</td>
-                                <td>tellus</td>
-                                <td>sed</td>
-                            </tr>
-                            <tr>
-                                <td>1,009</td>
-                                <td>augue</td>
-                                <td>semper</td>
-                                <td>porta</td>
-                                <td>Mauris</td>
-                            </tr>
-                            <tr>
-                                <td>1,010</td>
-                                <td>massa</td>
-                                <td>Vestibulum</td>
-                                <td>lacinia</td>
-                                <td>arcu</td>
-                            </tr>
-                            <tr>
-                                <td>1,011</td>
-                                <td>eget</td>
-                                <td>nulla</td>
-                                <td>Class</td>
-                                <td>aptent</td>
-                            </tr>
-                            <tr>
-                                <td>1,012</td>
-                                <td>taciti</td>
-                                <td>sociosqu</td>
-                                <td>ad</td>
-                                <td>litora</td>
-                            </tr>
-                            <tr>
-                                <td>1,013</td>
-                                <td>torquent</td>
-                                <td>per</td>
-                                <td>conubia</td>
-                                <td>nostra</td>
-                            </tr>
-                            <tr>
-                                <td>1,014</td>
-                                <td>per</td>
-                                <td>inceptos</td>
-                                <td>himenaeos</td>
-                                <td>Curabitur</td>
-                            </tr>
-                            <tr>
-                                <td>1,015</td>
-                                <td>sodales</td>
-                                <td>ligula</td>
-                                <td>in</td>
-                                <td>libero</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <OrdersList list="2016-11-04" />
             </div>
         );
     }
