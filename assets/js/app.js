@@ -22,9 +22,14 @@ import {types, initSidebar} from './actions/index'
 const SuperState = {
     activeSidebar: {
         menu: 0,
-        item: 0
+        item: 0,
+        name: 0,
     },
-    menus: []
+    menus: [],
+    list: {
+        name: '',
+        data: [],
+    },
 };
 
 const store = configureStore(SuperState);

@@ -1,15 +1,11 @@
-import { createStore, compose, applyMiddleware } from 'Redux'
-import ReduxPromise from 'redux-promise';
+import { createStore } from 'Redux'
 
 import reducers from '../reducers/index'
 
 export default function configureStore(initialState) {
     const store = createStore(
         reducers,
-        initialState,
-        compose (
-            applyMiddleware(ReduxPromise)
-        )
+        initialState
     );
 
     return store;

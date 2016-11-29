@@ -33,7 +33,7 @@ class Main extends React.Component {
                     </div>
                 </div>
 
-                <OrdersList list="2016-11-04" />
+                <OrdersList />
             </div>
         );
     }

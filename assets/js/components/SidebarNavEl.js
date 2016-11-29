@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 
-import { activateList } from '../actions/index'
+import { activateList, loadList } from '../actions/index'
 
 class SidebarNavEl extends React.Component {
     constructor(props) {
@@ -9,8 +9,10 @@ class SidebarNavEl extends React.Component {
         this.handleClick = this.handleClick.bind(this);
     }
 
-    handleClick() {
-        this.props.dispatch(activateList(this.props.menu, this.props.item))
+    handleClick(e) {
+        e.preventDefault()
+        this.props.dispatch(activateList(this.props.menu, this.props.item, this.props.name))
+        this.props.dispatch(loadList(this.props.name))
     }
 
     render() {

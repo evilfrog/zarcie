@@ -3,6 +3,7 @@ import { types } from '../actions/index'
 const initialState = {
     menu: 0,
     item: 0,
+    name: 0,
 }
 
 export default function(state = initialState, action) {

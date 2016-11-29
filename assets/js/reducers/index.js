@@ -1,10 +1,12 @@
 import { combineReducers } from 'redux';
-import Lists from './lists';
+import activateSidebar from './activateSidebar';
+import loadList from './loadList';
 import Sidebar from './sidebar';
 
 const reducers = combineReducers({
-    activeSidebar: Lists,
+    activeSidebar: activateSidebar,
     menus: Sidebar,
+    list: loadList,
 });
 
 export default reducers;
